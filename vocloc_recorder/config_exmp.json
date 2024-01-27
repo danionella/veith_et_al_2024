@@ -1,0 +1,88 @@
+{
+  "general": {
+    "encoderPath": "C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
+    "logPath": ".\\log.txt",
+    "savePath": "C:\\"
+  },
+  "audio": {
+    "triggerDigital": true,
+    "save": true,
+    "rate": 51200,
+    "clockStr": "cDAQ2",
+    "chStr": [
+      "cDAQ2Mod1/ai0",
+      "cDAQ2Mod1/ai1",
+      "cDAQ2Mod1/ai2",
+      "cDAQ2Mod1/ai3"
+    ],
+    "chStrTrig": "cDAQ2Mod3/port0/line1",
+    "peakAmp": 4,
+    "szChunk": 100000,
+    "playBack": false,
+    "audioDeviceName": "Microsoft Sound Mapper - Output"
+  },
+  "video": {
+    "save": true,
+    "framerate": 24,
+    "qmin": 17,
+    "qmax": 21,
+    "bitrate": 250
+  },
+  "preview": {
+  "active": true,
+  "sub_spatial": 1
+  },
+  "trigger": {
+    "chStr": [
+      "cDAQ2Mod3/port0/line2"
+    ],
+    "HIGH": 4,
+    "LOW": 0,
+    "rate": 24,
+    "duration": 1
+  },
+  "camera": {
+    "interface": "Pylon",
+    "exposure": 4,
+    "width": 1024,
+    "height": 1024,
+    "xoff": 208,
+    "yoff": 4,
+    "triggered": true
+  },
+  "vis": {
+    "camWindowSize": [
+      600,
+      600
+    ]
+  },
+  "audio_out": {
+    "chStr": [
+      "cDAQ2Mod2/ao0",
+      "cDAQ2Mod2/ao1"
+    ]
+  },
+  "indepFunc": {
+    "active": false,
+    "className": "MyTest",
+    "allowSaving": true
+  },
+  "videoFunc": {
+    "active": true,
+    "className": "MyPreviewWithTrigger",
+    "sub_spatial": 1,
+    "sub_t": 1,
+    "allowSaving": true
+  },
+  "triggeredFunc": {
+    "active": true,
+    "className": "MyTest",
+    "allowSaving": true
+  },
+  "custom_config": {
+    "fn_stimset": "",
+    "power_switch_on": 0,
+    "serial_port": "/dev/ttyACM0",
+    "power_switch_delay": 0.075
+  }
+}
