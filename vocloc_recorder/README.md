@@ -11,7 +11,6 @@
 ```
 conda env create -f requirements.yml
 conda activate vocloc
-pip install -e .
 ```
 Install the frozen copy of https://github.com/portugueslab/arrayqueues into the environment.
 ```
