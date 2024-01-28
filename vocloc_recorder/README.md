@@ -17,6 +17,7 @@ Install the frozen copy of https://github.com/portugueslab/arrayqueues into the 
 cd arrayqueues
 pip install -e .
 ```
+All of the above steps typically take less than 5 minutes.
 
 ## How to use
 call 
