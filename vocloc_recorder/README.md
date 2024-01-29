@@ -7,7 +7,7 @@
 
 ### Installation procedure
 - Install camera drivers and python adapters (e.g. [SpinnakerSDK](https://www.flir.eu/products/spinnaker-sdk) / [spinnaker-python](https://pypi.org/project/spinnaker-python/))
-- clone or download this repository, cd the directory containing setupy.py, then:
+- clone or download this repository, cd the directory containing this file, then:
 ```
 conda env create -f requirements.yml
 conda activate vocloc
