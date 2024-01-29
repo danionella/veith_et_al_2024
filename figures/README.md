@@ -1,8 +1,6 @@
 # Generate figures
 
-Stand-alone notebook to reproduce plots in Figure 1 & 2 on directional startle behavior.  
-
-For a quick preview, open the notebook on github.
+Stand-alone notebook to reproduce plots in Figure 1 & 2 on directional startle behavior. For a quick preview, [open the notebook on github](https://github.com/danionella/veith_et_al_2024/blob/main/figures/generate_figures_1_2.ipynb).
 
 ## Running the notebook on Colab
 You can execute the notebook on a runtime hosted by Google Research (click "Open in Colab") 
