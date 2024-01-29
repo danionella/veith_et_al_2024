@@ -1,5 +1,4 @@
-Run this stand-alone notebook to reproduce plots in Fig 1 & 2 on the directional startle 
-behavior of _Danionella cerebrum_.  
+Stand-alone notebook to reproduce plots in Fig 1 & 2 on the directional startle behavior of _Danionella cerebrum_.  
 
 For a quick preview, open the notebook on github.
 
