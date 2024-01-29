@@ -9,9 +9,6 @@ You can execute the notebook on a runtime hosted by Google Research (click "Open
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
-or run it on your own Jupyter Notebook environment.
-
-
 ## Running the notebook on a local installation
 ### Requirements
 - There are no specific hadware requirements. This software should run on Windows, Linux and Mac.
@@ -21,8 +18,10 @@ or run it on your own Jupyter Notebook environment.
 - Change to the directory containing this file
 - Execute the collowing lines
 ```
-conda create -n veith2024 'python>=3.8' 'numpy<2' scipy pandas matplotlib ipympl -c conda-forge
+conda create -n veith2024 'python>=3.8' 'numpy<2' scipy pandas matplotlib ipympl jupyter -c conda-forge
 conda activate veith2024
 jupyter notebook generate_figures_1_2.ipynb
 ```
 Above steps typically take 10-15 mins.
+
+Alternatively, open the notebook in your own Jupyter Notebook environment after installing numpy<2, scipy, pandas and matplotlib modules. 
