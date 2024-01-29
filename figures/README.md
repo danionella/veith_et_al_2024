@@ -3,7 +3,7 @@ behavior of _Danionella cerebrum_.
 
 You can execute the notebook on a runtime hosted by Google Research (click "Open in Colab") 
 
-<a target="_blank" href="">
+<a target="_blank" href="https://github.com/danionella/veith_et_al_2024/tree/main/vocloc_recorder/figures/generate_figures_1_2.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
