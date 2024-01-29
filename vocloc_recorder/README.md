@@ -127,7 +127,9 @@ One can add live analysis to the video stream and trigger a triggered function b
     }
 
 ### veith_et_al_2024
-Protocol for this publication.
+Protocol for this publication.  
+
+See [misc/sound_targeting](misc/sound_targeting) for documentation on impulse-response based sound conditioning.  
 
 Steps
 - run `sound_targeting_field.py` to record the speaker's impulse responses, generate target waveforms and run sound conditioning, which computes the speaker signals to deliver the target sounds.
