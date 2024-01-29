@@ -21,7 +21,7 @@ or run it on your own Jupyter Notebook environment.
 - Change to the directory containing this file
 - Execute the collowing lines
 ```
-conda create -n veith2024 python=3.8 numpy scipy pandas matplotlib ipympl -c conda-forge
+conda create -n veith2024 'python>=3.8' 'numpy<2' scipy pandas matplotlib ipympl -c conda-forge
 conda activate veith2024
 jupyter notebook generate_figures_1_2.ipynb
 ```
