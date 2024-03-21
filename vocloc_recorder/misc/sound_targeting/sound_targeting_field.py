@@ -180,6 +180,7 @@ class SoundFieldRecording:
         # define target sound modes
         # key: stimulus name, value: dict("target", "sp_map"), where "target" key: observable, value: target waveform
         sd_trick = True
+        splitsources = False
 
         if sd_trick:
             print("Using trick paradigm...")
@@ -189,6 +190,13 @@ class SoundFieldRecording:
                                       # 251.189 281.838 316.227 354.813 398.107 446.684 (before correction -> divide by 5.123)
                                       'smp_horizon': int((16 / 400) * self.sr)}  # 16 frames at 400fps
             ss['sounds_tg'] = self.get_targets_trick(ss['wavs'], **ss['sounds_tg_params'])
+
+        elif splitsources:
+            print("Using paradigm with pressure source and a motion source combined to give a new version of the trick expt.")
+            print("(inverted/noninverted x left/right x singlespeaker/splitsources)")
+            ss['sounds_tg_params'] = {'p_amplitude': 223.87211385683378, 'pad_silence': 0, 'distance2monopole': 0.03,
+                                      'smp_horizon': int((1 / 120) * self.sr)}
+            ss['sounds_tg'] = self.get_targets_splitsources(ss['wavs'], **ss['sounds_tg_params'])
 
         print(f"Made target wavorms for: \n  {ss['sounds_tg'].keys()}")
         print(f"Targets are delayed by the kernel duration.")
@@ -200,8 +208,14 @@ class SoundFieldRecording:
 
         if sd_trick:
             peakAmp = self.conf["audio"]["peakAmp"]
-            ss['sounds_cdmap0_params'] = {'lowcut': 200, 'highcut': 1200, 'env_time': 0.03, 'peakAmp': peakAmp}  # 0.02
+            ss['sounds_cdmap0_params'] = {'lowcut': 200, 'highcut': 1200, 'env_time': 0.03, 'peakAmp': peakAmp}
             ss['sounds_cdmap0'] = self.get_conditioned_bc_trick(ss['kernelfield'], ss['sounds_tg'],
+                                                                **ss['sounds_cdmap0_params'])
+
+        elif splitsources:
+            peakAmp = self.conf["audio"]["peakAmp"]
+            ss['sounds_cdmap0_params'] = {'lowcut': 200, 'highcut': 1200, 'env_time': 0.004, 'peakAmp': peakAmp}
+            ss['sounds_cdmap0'] = self.get_conditioned_bc_splitsources(ss['kernelfield'], ss['sounds_tg'],
                                                                 **ss['sounds_cdmap0_params'])
 
         print(f"Made conditioned soundmap for:\n  {ss['sounds_cdmap0'].keys()}")
@@ -601,6 +615,72 @@ class SoundFieldRecording:
 
         return targets
 
+    def get_targets_splitsources(self, wavs, p_amplitude, pad_silence, distance2monopole, smp_horizon):
+        # 8 stims: playback from left and right x split sources condition x inversion
+        targets = {}
+        condition = "Conditioned"  # single speaker & opposing, orthogonal speaker pair
+        active_speakers = [[1, 0, 0, 0], [0, 1, 0, 0]]
+        # left/right speaker
+        for sp in active_speakers:
+            if sp == [1, 0, 0, 0]:
+                asign = 1
+                splabel = "sp0"
+            elif sp == [0, 1, 0, 0]:
+                asign = -1  # acceleration inverts if speaker is on other side
+                splabel = "sp1"
+            # use three speakers (left or right + opposing orthogonal pair)
+            sp_map = [sp, [0, 0, 1, 0], [0, 0, 0, 1]]  # mapping for sound targeting with three observables
+
+            # for each stimulus
+            for name, wav in wavs.items():
+                if pad_silence is not None:
+                    # extend duration of stim to catch echoes as daq recording lasts only for duration
+                    wav = self.padsamples(wav, add_samples=int(pad_silence * self.sr), axis=0,
+                                          only_end=True)
+                p = p_amplitude * wav
+                # zero padding to shift target to a later point in time at which convolutions loose memory
+                p = self.padsamples(p, smp_horizon, axis=0, only_end=False)  # beginning and end
+                # targets have even number of samples (for rfft processing later)
+                p = self.padsamples(p, len(p) % 2, axis=0, only_end=True)
+                # Only pressure is inverted in the trick condition, not acceleration
+                target = {"pressure": p,
+                          "acceleration_x": asign * self.a_sphere(p, r=distance2monopole),  # self.a_plane(p)
+                          "acceleration_y": 0 * p}
+
+                tmp = {}
+                tmp["target"] = target
+                tmp["sp_map"] = sp_map
+                key = name + '_' + condition + '_' + splabel
+                targets[key] = tmp
+
+        # splitsources
+        sp_map_ss = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+        for name, wav in wavs.items():
+            if pad_silence is not None:
+                # extend duration of stim to catch echoes as daq recording lasts only for duration
+                wav = self.padsamples(wav, add_samples=int(pad_silence * self.sr), axis=0,
+                                      only_end=True)
+            p = p_amplitude * wav
+            # zero padding to shift target to a later point in time at which convolutions loose memory
+            p = self.padsamples(p, smp_horizon, axis=0, only_end=False)  # beginning and end
+            # targets have even number of samples (for rfft processing later)
+            p = self.padsamples(p, len(p) % 2, axis=0, only_end=True)
+            # Only pressure is inverted in the trick condition, not acceleration
+
+            for asign in [1,-1]:
+                target = {"pressure": p,
+                          "acceleration_x": asign * self.a_sphere(p, r=distance2monopole),
+                          "acceleration_y": 0 * p}
+
+                tmp = {}
+                tmp["target"] = target
+                tmp["sp_map"] = sp_map_ss
+                key = name + '_' + condition + f"_splitsrc_asign{asign}"
+                targets[key] = tmp
+
+        return targets
+
+
     def get_conditioned(self, kernelfield, targets, lowcut, highcut, env_time):
         wav_cond = {}
         nkernelsamples, ny, nx, nspeakers = kernelfield["pressure"].shape
@@ -729,6 +809,74 @@ class SoundFieldRecording:
                         wav_enforced = wav_cond[matching_name][pickspeaker, :, i, j]
                         sd = self.find_sound_bc(ks, tg, sp, bc_tolerance=5, relative_weights=[1, 1, 1],  # 2, [1,1,1]
                                                 wav_enforced=wav_enforced, apply_to=0)
+
+                    # filter signal
+                    sd = self.butter_bandpass_filter(sd, lowcut=lowcut, highcut=highcut, fs=self.sr, order=4, repeat=4)
+
+                    # smooth to zero
+                    env_samples = max(2, int(self.sr * env_time))  # at least 2 samples
+                    env_start = self.get_env_start(sd.shape[1], climb_samples=env_samples)
+                    env_end = self.get_env_end(sd.shape[1], fall_samples=env_samples)
+                    sd *= env_start
+                    sd *= env_end
+
+                    # rescale if needed
+                    if peakAmp is not None:
+                        sd_peak = abs(sd).max()
+                        if sd_peak > peakAmp:
+                            sd *= peakAmp / sd_peak
+                            print(f"Signal was at {sd_peak}V and was rescaled to {peakAmp}V")
+
+                    soundmap[:, :, i, j] = sd  # nspeakers,nsamples,ny,nx
+            wav_cond[name] = soundmap
+        return wav_cond
+
+    def get_conditioned_bc_splitsources(self, kernelfield, targets, lowcut, highcut, env_time, peakAmp=None):
+        wav_cond = {}
+        nkernelsamples, ny, nx, nspeakers = kernelfield["pressure"].shape
+        print(f"Band-pass filters conditioned sounds between {lowcut}Hz and {highcut}Hz")
+        print(f"Smoothes start and end of sounds")
+        keys = list(targets.keys())
+        for name in keys:
+            print(name)
+            splitsrc = "splitsrc" in name
+
+            d = targets[name]
+            tg = d["target"]
+            sp = d["sp_map"]
+            nsamples = len(tg["pressure"])
+            if nsamples % 2:
+                print("Make sure that the targets have even number of samples (rfft is taken).")
+
+            soundmap = np.zeros((nspeakers, nsamples, ny, nx))
+            for i in range(ny):
+                for j in range(nx):
+                    # kernel for each position
+                    ks = {k: [v[:, i, j, ii] for ii in range(nspeakers)] for k, v in
+                          kernelfield.items()}  # list of kernel waveform, one for each speaker
+                    print(i, j)
+                    if splitsrc:
+                        print("Split sources conditioning...")
+
+                        print("Find sp0 & sp1 activation to realize motion...")
+                        tg_tmp = tg.copy()
+                        tg_tmp["pressure"] = 0*tg_tmp["pressure"]
+                        sd_motion = self.find_sound_bc(ks, tg_tmp, sp[0:2], bc_tolerance=5, relative_weights=[1, 1],
+                                                wav_enforced=None, apply_to=0)
+
+                        print("Find sp2 & sp3 activation to realize pressure...")
+                        tg_tmp = tg.copy()
+                        tg_tmp["acceleration_x"] = 0*tg_tmp["acceleration_x"]
+                        sd_pressure = self.find_sound_bc(ks, tg_tmp, sp[2:4], bc_tolerance=5, relative_weights=[1, 1],
+                                                wav_enforced=None, apply_to=0)
+
+                        print("Add pressure and motion source...")
+                        sd = sd_motion + sd_pressure
+
+                    else:
+                        print("Single speaker conditioning, add low amplitude suppressed opposing pair...")
+                        sd = self.find_sound_bc(ks, tg, sp, bc_tolerance=5, relative_weights=[1, .1, .1],
+                                                wav_enforced=None, apply_to=0)
 
                     # filter signal
                     sd = self.butter_bandpass_filter(sd, lowcut=lowcut, highcut=highcut, fs=self.sr, order=4, repeat=4)
