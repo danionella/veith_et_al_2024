@@ -1,11 +1,11 @@
 # Directional hearing behavior
 
-Stand-alone notebook to reproduce plots in Figure 1 & 2 on directional startle behavior. For a quick preview, [open the notebook on github](https://github.com/danionella/veith_et_al_2024/blob/main/figures_1_2/generate_figures_1_2.ipynb).
+Stand-alone notebook to reproduce plots in Figure 1 & 2 on directional startle behavior. For a quick preview, [open the notebook on github](https://github.com/danionella/veith_et_al_2024/blob/main/figure_1_2/generate_figures_1_2.ipynb).
 
 ## Running the notebook on Colab
 You can execute the notebook on a free runtime hosted by Google Research (click "Open in Colab") 
 
-<a target="_blank" href="https://colab.research.google.com/github/danionella/veith_et_al_2024/blob/main/figures_1_2/generate_figures_1_2.ipynb">
+<a target="_blank" href="https://colab.research.google.com/github/danionella/veith_et_al_2024/blob/main/figure_1_2/generate_figures_1_2.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a>
 
