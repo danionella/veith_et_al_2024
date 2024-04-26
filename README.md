@@ -1,8 +1,8 @@
 # The mechanism for directional hearing in fish
 
 paper: tba  
-data: https://gin.g-node.org/danionella/Veith_et_al_2024 
-online viewer: https://danionella.github.io/veith_et_al_2024/ (3D meshgrid)
+data: https://gin.g-node.org/danionella/Veith_et_al_2024  
+online viewer: https://danionella.github.io/veith_et_al_2024/  
 
 Instructions can be found in the subfolders:
 
