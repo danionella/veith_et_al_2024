@@ -1,8 +1,8 @@
 # The mechanism for directional hearing in fish
 
-paper: tba  
+paper: https://www.nature.com/articles/s41586-024-07507-9  
 data: https://gin.g-node.org/danionella/Veith_et_al_2024  
-online viewer: https://danionella.github.io/veith_et_al_2024/  
+online viewer: https://danionella.github.io/veith_et_al_2024  
 
 Instructions can be found in the subfolders:
 
